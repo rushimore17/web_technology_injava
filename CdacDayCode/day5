@@ -1,1 +1,109 @@
 
+Perfect, Rushikesh — you’ve shared a complete Maven web project with Servlets, JSPs, Hibernate, and MySQL. Let me walk you through the sequence and flow step by step so you can visualize how everything connects. I’ll explain it like a pipeline from user → servlet → DAO → DB → JSP.
+
+🔄 Project Flow (Step by Step)
+1. User Entry Point
+- The user opens register.html (your welcome file in web.xml).
+- This HTML form collects name, email, mobile.
+- On submit, the form sends a POST request to /register (mapped to RegisterServlet).
+
+2. RegisterServlet.java
+- Servlet receives the request (doPost).
+- Extracts form data using req.getParameter("name"), etc.
+- Creates a Student object and sets values.
+- Calls StudentDAO.writeStudent(s) to persist the student in DB.
+- After saving, redirects to success.jsp.
+👉 This servlet is the controller for registration.
+
+3. Student.java (Entity Class)
+- Annotated with @Entity and @Table(name="students").
+- Represents the students table in MySQL.
+- Fields: id, name, email, mobile.
+- Hibernate uses this class to map Java objects ↔ database rows.
+👉 This is the model in MVC.
+
+4. StudentDAO.java (Data Access Layer)
+- Handles DB operations using Hibernate.
+- writeStudent(Student s):
+- Loads Hibernate config (hibernate.cfg.xml).
+- Opens a session, begins transaction.
+- Calls session.persist(s) → inserts into DB.
+- Commits transaction.
+- getAllStudents():
+- Opens session.
+- Runs HQL query from Student.
+- Returns a List<Student>.
+👉 This is the bridge between Servlets and DB.
+
+5. success.jsp
+- Shown after registration.
+- Displays "Student Registered Successfully!"
+- Provides links back to register.html or to view (mapped to ViewStudentsServlet).
+
+6. ViewStudentsServlet.java
+- Handles GET requests at /view.
+- Calls StudentDAO.getAllStudents().
+- Stores the list in request attribute: req.setAttribute("studentList", lst).
+- Forwards request to viewStudents.jsp.
+👉 This servlet is the controller for viewing students.
+
+7. viewStudents.jsp
+- Retrieves studentList from request.
+- Iterates over it using JSP scriptlets.
+- Displays all students in a table (ID, Name, Email, Mobile).
+- Provides link back to registration.
+
+8. hibernate.cfg.xml
+- Defines DB connection (MySQL dac schema).
+- Username/password.
+- Dialect (MySQLDialect).
+- Auto-update schema (hbm2ddl.auto=update).
+- Maps com.cdac.Student.
+👉 This is the configuration file for Hibernate ORM.
+
+9. web.xml
+- Defines servlet mappings:
+- /register → RegisterServlet
+- /view → ViewStudentsServlet
+- Sets welcome files (so register.html loads first).
+👉 This is the deployment descriptor.
+
+📊 Flow Diagram (Conceptual)
+register.html (Form)
+       |
+       v
+RegisterServlet (Controller)
+       |
+       v
+StudentDAO.writeStudent() ----> Hibernate ----> MySQL (students table)
+       |
+       v
+success.jsp (Confirmation)
+       |
+       v
+ViewStudentsServlet (Controller)
+       |
+       v
+StudentDAO.getAllStudents() ----> Hibernate ----> MySQL
+       |
+       v
+viewStudents.jsp (Display Table)
+
+
+
+🚀 Sequence to Write Code (Best Practice Order)
+- Model (Student.java) → Define entity first.
+- DAO (StudentDAO.java) → Write DB logic.
+- Config (hibernate.cfg.xml) → Setup DB connection.
+- Servlets (RegisterServlet, ViewStudentsServlet) → Controllers.
+- JSP/HTML (register.html, success.jsp, viewStudents.jsp) → Views.
+- web.xml → Wire everything together.
+
+✅ How It All Connects
+- HTML/JSP → User interface.
+- Servlets → Controllers handling requests.
+- DAO + Hibernate → Database persistence.
+- Entity (Student) → Maps DB table.
+- web.xml → Glue that maps URLs to servlets.
+
+Rushikesh, since you’re building a Library Management System, this flow is a mini MVC pattern. Registration and viewing students are two modules. You can extend this same structure for Books, Issuing, Returning by creating new entities, DAOs, and servlets.
